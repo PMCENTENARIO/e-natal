@@ -17,7 +17,8 @@ class UserSchema extends Schema {
         .integer('profile')
         .notNullable()
         .defaultTo(0);
-
+      table.string('token');
+      table.timestamp('token_created_at');
       table.timestamps();
     });
   }

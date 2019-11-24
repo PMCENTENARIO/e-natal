@@ -2,10 +2,8 @@
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
 
-/**
- * Resourceful controller for interacting with Users
- */
 const User = use('App/Models/User');
+const crypto = require('crypto');
 
 class UserController {
   async index({ request, response }) {
@@ -14,67 +12,31 @@ class UserController {
     return users;
   }
 
-  /**
-   * Render a form to be used for creating a new User.
-   * GET Users/create
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async create({ request, response, view }) {}
-
-  /**
-   * Create/save a new User.
-   * POST Users
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
   async store({ request, response }) {}
 
-  /**
-   * Display a single User.
-   * GET Users/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
   async show({ params, request, response, view }) {}
 
-  /**
-   * Render a form to update an existing User.
-   * GET Users/:id/edit
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async edit({ params, request, response, view }) {}
+  async update({ params, request, response, auth }) {
+    try {
+      if (auth.user.profile < 2) {
+        return response.status(401).send({
+          error: {
+            message: 'Este perfil não é autorizado para está operação',
+          },
+        });
+      }
 
-  /**
-   * Update User details.
-   * PUT or PATCH Users/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async update({ params, request, response }) {}
+      const { email, password } = request.all();
+      const user = await User.findByOrFail('email', email);
+      user.password = password;
+      await user.save();
+    } catch (err) {
+      return response
+        .status(err.status)
+        .send({ error: { message: 'Erro ao atualizar usuário' } });
+    }
+  }
 
-  /**
-   * Delete a User with id.
-   * DELETE Users/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
   async destroy({ params, request, response }) {}
 }
 

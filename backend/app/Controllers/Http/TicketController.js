@@ -5,13 +5,14 @@ const Person = use('App/Models/Person');
 const QRCode = require('qrcode');
 
 class TicketController {
-  async index() {
+  async index({ request }) {
+    const { page } = request.get();
     const tickets = await Ticket.query()
       .with('user')
       .with('type')
       .with('school')
       .with('address')
-      .fetch();
+      .paginate(page, 20);
 
     return tickets;
   }
